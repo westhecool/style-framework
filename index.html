@@ -1,0 +1,293 @@
+<html>
+
+<head>
+    <style>
+        :root {
+            --sf-button-background-color: #0099cc;
+            --sf-button-background-color-hover: #0085b1;
+            --sf-button-background-color-disabled: #65848f;
+            --sf-button-text-color: white;
+        }
+
+        .sf-button {
+            background-color: var(--sf-button-background-color);
+            color: var(--sf-button-text-color);
+            border-width: 0;
+            border-radius: 5px;
+            font-size: medium;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .sf-button-size-xsmall {
+            font-size: x-small;
+            padding: 5px 10px;
+        }
+
+        .sf-button-size-small {
+            font-size: small;
+            padding: 8px 15px;
+        }
+
+        .sf-button-size-large {
+            font-size: large;
+            padding: 13px 25px;
+        }
+
+        .sf-button-size-xlarge {
+            font-size: x-large;
+            padding: 15px 30px;
+        }
+
+        .sf-button:hover {
+            background-color: var(--sf-button-background-color-hover);
+        }
+
+        .sf-button:disabled {
+            background-color: var(--sf-button-background-color-disabled);
+            cursor: not-allowed;
+        }
+
+        body {
+            background-color: white;
+            color: black;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        a {
+            color: #0000EE;
+        }
+
+        .sf-switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+
+        .sf-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .sf-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .sf-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.sf-switch-slider {
+            background-color: #2196F3;
+        }
+
+        input:checked+.sf-switch-slider:before {
+            transform: translateX(25px);
+        }
+
+        .sf-switch input:disabled+.sf-switch-slider {
+            background-color: #8f8f8f;
+            cursor: not-allowed;
+        }
+
+        .sf-switch input:disabled+.sf-switch-slider:before {
+            background-color: rgb(225, 225, 225);
+        }
+
+        @keyframes sf-body-light-mode-fade {
+            0% {
+                background-color: #202020;
+                color: white;
+            }
+
+            100% {
+                background-color: white;
+                color: black;
+            }
+        }
+
+        @keyframes sf-body-dark-mode-fade {
+            0% {
+                background-color: white;
+                color: black;
+            }
+
+            100% {
+                background-color: #202020;
+                color: white;
+            }
+        }
+
+        @keyframes sf-a-dark-mode-fade {
+            0% {
+                color: #0000EE;
+            }
+
+            100% {
+                color: white;
+            }
+        }
+
+        @keyframes sf-a-light-mode-fade {
+            0% {
+                color: white;
+            }
+
+            100% {
+                color: #0000EE;
+            }
+        }
+    </style>
+    <style id="sf-metipulatable-style"></style>
+    <script>
+        var SFDarkModeEnabled = false;
+        class SFButton extends HTMLElement {
+            constructor() {
+                super();
+            }
+
+            update() {
+                if (this.children[0]) { // Check if the element exists yet
+                    this.children[0].disabled = this.hasAttribute("disabled");
+                    this.children[0].textContent = this.getAttribute("text");
+                    if (this.hasAttribute("size")) {
+                        this.children[0].className = `sf-button sf-button-size-${this.getAttribute("size")}`;
+                    } else {
+                        this.children[0].className = `sf-button`;
+                    }
+                }
+            }
+
+            connectedCallback() {
+                // Code to run when the element is added to the DOM
+                const button = document.createElement("button");
+                this.appendChild(button);
+                this.update();
+            }
+
+            disconnectedCallback() {
+                // Code to run when the element is removed from the DOM
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                // Code to run when an attribute of the element changes
+                this.update();
+            }
+
+            static get observedAttributes() {
+                return ['disabled'];
+            }
+        }
+        window.customElements.define("sf-button", SFButton);
+        function SFLightMode(faideTime = 1) {
+            SFDarkModeEnabled = false;
+            document.body.style.animation = `sf-body-light-mode-fade ${faideTime}s forwards`;
+            document.getElementById("sf-metipulatable-style").innerHTML = `
+            a {
+                animation: sf-a-light-mode-fade ${faideTime}s forwards;
+            }
+            `;
+        }
+        function SFDarkMode(faideTime = 1) {
+            SFDarkModeEnabled = true;
+            document.body.style.animation = `sf-body-dark-mode-fade ${faideTime}s forwards`;
+            document.getElementById("sf-metipulatable-style").innerHTML = `
+            a {
+                animation: sf-a-dark-mode-fade ${faideTime}s forwards;
+            }
+            `;
+        }
+        class SFSwitch extends HTMLElement {
+            constructor() {
+                super();
+            }
+
+            update() {
+                if (this.getElementsByTagName("input")[0]) { // Check if the input element exists yet
+                    this.getElementsByTagName("input")[0].checked = this.hasAttribute("checked");
+                    this.getElementsByTagName("input")[0].disabled = this.hasAttribute("disabled");
+                }
+            }
+
+            connectedCallback() {
+                // Code to run when the element is added to the DOM
+                this.checked = false;
+                const label = document.createElement("label");
+                label.className = "sf-switch";
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.onchange = () => {
+                    if (input.checked) {
+                        this.setAttribute("checked", "true");
+                    } else {
+                        this.removeAttribute("checked");
+                    }
+                }
+                label.appendChild(input);
+                const span = document.createElement("span");
+                span.className = "sf-switch-slider";
+                label.appendChild(span);
+                this.appendChild(label);
+                this.update();
+            }
+
+            disconnectedCallback() {
+                // Code to run when the element is removed from the DOM
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                // Code to run when an attribute of the element changes
+                this.update();
+            }
+
+            static get observedAttributes() {
+                return ['disabled', 'checked'];
+            }
+        }
+        window.customElements.define("sf-switch", SFSwitch);
+    </script>
+</head>
+
+<body>
+    <h1>Style Framework</h1>
+    <sf-button onclick="SFDarkMode();document.getElementById('darkswitch').setAttribute('checked', 'true')" text="Dark Mode"></sf-button>
+    <sf-button onclick="SFLightMode();document.getElementById('darkswitch').removeAttribute('checked')" text="Light Mode"></sf-button>
+    <br><br>
+    <sf-switch id="darkswitch" onchange="if (this.hasAttribute('checked')) { SFDarkMode() } else { SFLightMode() }"></sf-switch>
+    <h3>Buttons:</h3>
+    <sf-button text="Primary"></sf-button>
+    <h3>Button SIzes:</h3>
+    <sf-button text="XSmall" size="xsmall"></sf-button>
+    <sf-button text="Small" size="small"></sf-button>
+    <sf-button text="Normal"></sf-button>
+    <sf-button text="Large" size="large"></sf-button>
+    <sf-button text="XLarge" size="xlarge"></sf-button>
+    <h3>Disabled Buttons:</h3>
+    <sf-button disabled text="Disabled"></sf-button>
+    <h3>Switch:</h3>
+    <sf-switch disabled></sf-switch>
+    <sf-switch onchange="console.log(this.hasAttribute('checked'))"></sf-switch>
+    <h3>Text:</h3>
+    <p>This is a test</p>
+    <a href="https://www.google.com">Google</a>
+</body>
+
+</html>
